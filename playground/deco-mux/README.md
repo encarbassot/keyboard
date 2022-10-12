@@ -18,9 +18,9 @@
  - **VCC & GND** -> 🙃
 
 A decoder has **n** inputs and **2<sup>n</sup>** outputs  
-And what it does its to triger only the output that matches the input binary convination
+And what it does it's to trigger only the output that matches the input binary combination
 
-for the **74HC238** that i'm using on the project the output table is the next:
+for the **74HC238** that I'm using on the project, the output table is the next:
 
 | A | B | C || Y0 | Y1 | Y2 | Y3 | Y4 | Y5 | Y6 | Y7 |
 |---|---|---|-|----|----|----|----|----|----|----|----|
@@ -37,9 +37,9 @@ see it on action
 <img alt="decpder gif" src="../../img/media/VID-20210621-WA0035.gif" width="400" heigth="716" style="height:400px; object-fit: cover;">
 
 ## Multiplexor
- A multiplexor its basicaly an imput selector
- it has **n** chanel selectors, **2<sup>n</sup>** inputs and 1 output  
- with the microcontroller you can select any input by setting the channel selectors **HIGH** or **LOW**  
+ A multiplexor its basically an input selector
+ it has **n** channel selectors, **2<sup>n</sup>** inputs and 1 output  
+ with the microcontroller, you can select any input by setting the channel selectors **HIGH** or **LOW**  
  then it will set its output to the value of the selected input
 
  - see on [wikipedia](wikipedia.org/wiki/Multiplexor)
