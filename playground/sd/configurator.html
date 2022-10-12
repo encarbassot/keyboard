@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>KEYBOARD configurator</title>
+    <style media="screen">
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin:0;
+}
+
+/* TABS*/
+.tab {/* Style the tab */
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+.tab button {/* Style the buttons inside the tab */
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+.tab button:hover {/* Change background color of buttons on hover */
+  background-color: #ddd;
+}
+.tab button.active {/* Create an active/current tablink class */
+  background-color: #ccc;
+}
+.tabcontent {/* Style the tab content */
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+/*TABS */
+
+/*TOOL BAR*/
+
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+}
+.navbar a,.navbar button{
+  cursor: pointer;
+}
+.navbar button:not(.dropbtn){
+  border: none;
+  background-color: inherit;
+  cursor:pointer;
+}
+.navbar a,.navbar button:not(.dropbtn) {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+.dropdown .dropbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+.navbar a:hover, .dropdown:hover .dropbtn {
+  background-color: red;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.dropdown-content input[type=checkbox]{
+  float: right;
+}
+.dropdown-content :is(a,span,label) {
+  cursor: pointer;
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+.dropdown-content :is(a,span,label):hover {
+  background-color: #ddd;
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dropdown-content sub{
+  font-size: 10px;
+}
+/*TOOL BAR*/
+
+/*MODAL (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+/*MODAL*/
+
+/* The Close Button modal&card*/
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/*INPUT TABLE*/
+#table {
+  border-collapse: collapse;
+}
+.content{
+  margin: 6px;
+}
+#table button{
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.card{
+  background-color: lightBlue;
+  padding: 5px;
+  margin: 5px;
+}
+#scriptAnounce{
+    background-color: lightseagreen;
+    padding: 10px;
+}
+
+</style>
+</head>
+<body>
+<input type="file" id="fileInput" onchange="uploaded()" style="display:none">
+<div class="navbar">
+  <div class="dropdown">
+    <button class="dropbtn">File
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <!--<a onclick="download()">Save Config <i class="fa fa-download" style="float:right;"></i></a>-->
+      <span onclick="download()" > Save <sub>Ctrl + S</sub> <i class="fa fa-download" style="float:right;"></i></span>
+      <span onclick="upload()" > Load <sub>Ctrl + O</sub><i class="fa fa-upload" style="float:right;"></i></span>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Config
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <!--<a onclick="download()">Save Config <i class="fa fa-download" style="float:right;"></i></a>-->
+      <span onclick="focusResizer()" > Size <i class="fa fa-crop" style="float:right;"></i></span>
+      <label > Logg Keypress
+          <input id="checker" onchange="swapLogger()" type="checkbox">
+      </label>
+
+    </div>
+  </div>
+  <a onclick="openScriptModal()">Scripts</a>
+  <!--<a href="#news">News</a>-->
+
+</div>
+
+    <!-- The Modal -->
+<div id="modal" class="modal" onclick="">
+    <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+
+    <div class="tab-container" id="tabContainer">
+      <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 0)">Key</button>
+        <button class="tablinks" onclick="openTab(event, 1)">Script</button>
+      </div>
+      <div  class="tabcontent">
+        <h3>Configure a Key</h3>
+        <table>
+          <tr><td></td><td>  <input type="text" id="modalKeyName" placeholder="Key name" disabled onchange="modalChanged()"> </td></tr>
+            <tr><td>    <select id="modalKeyValues" onchange="modalChanged(true)"></select></td>
+              <td>  <input type="number" id="modalValue" value="0" onchange="modalChanged()" min=0> </td></tr>
+            <tr><td></td><td><label>  <input type="checkbox" id="modalShift" onchange="modalChanged()"> Shift</label> </td></tr>
+            <tr><td></td><td><label>  <input type="checkbox" id="modalAltGr" onchange="modalChanged()"> AltGr </label> </td></tr>
+            <tr><td></td><td><label>  <input type="checkbox" id="modalAlt"  onchange="modalChanged()"> Alt </label> </td></tr>
+            <tr><td></td><td><label>  <input type="checkbox" id="modalCtrl" onchange="modalChanged()"> Ctrl</label> </td></tr>
+            <tr><td></td><td><label>  <input type="checkbox" id="modalMeta" onchange="modalChanged()"> Meta/Gui </label> </td></tr>
+        </table>
+      </div>
+
+      <div  class="tabcontent">
+        <h3>Configure a Script</h3>
+          <table>
+            <tr>
+              <td>ID</td>
+              <td><input type="text" id="modalScriptName" placeholder="ID"> </td>
+              <td><input type="number" min=0 id="modalScriptID" disabled placeholder="Name"> </td>
+            </tr><tr>
+              <td></td><td></td> <td><button type="button" id="modalScriptEdit">Edit Script</button> </td>
+            </tr>
+          </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script Modal -->
+<div id="scriptModal" class="modal" onclick="">
+  <div class="modal-content">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <a  style="cursor:pointer;color: blue;text-decoration: underline;"onclick="alert('Each script its one separated file, they should rest in /scripts folder inside the microSD card')">info</a>
+    <h3>Script Modal</h3>
+    <p id="scriptAnounce" style="display:none"></p>
+    <table>
+      <tr>
+        <td><input type="number" min=0 placeholder="script ID" id="scriptModalID" onchange="scriptModalChangeScript()"> </td>
+        <td><input type="text" placeholder="script Name" id="scriptModalName"> </td>
+      </tr></table><table>
+        <tr>
+          <td></td><td id="scriptModalInfo1" style="display:none" >
+          </td><td id="scriptModalInfo2" style="display:none" >
+          </td><td id="scriptModalInfo3" style="display:none" ></td>
+        </tr>
+        <tr><td><select id="scriptModalSelectOperation" onchange="scriptModalSelectedOperation()" required>
+          <option value="-1" disabled selected>Select</option>
+        </select></td>
+        <td>
+          <select style="display:none" id="scriptModalOperationKey"><option value="-1" disabled selected>Select</option></select>
+          <input style="display:none" type="text" id="scriptModalOperationText" value="">
+          <input style="display:none" type="number" id="scriptModalOperationNumber" min=0 value="0">
+          <select style="display:none" id="scriptModalOperationSystem"><option value="-1" disabled selected>Select</option></select>
+          <select style="display:none" id="scriptMOdalOperationMedia"><option value="-1" disabled selected>Select</option></select>
+        </td><td>
+          <input style="display:none" type="number" id="scriptModalOperationNumber1" min=0 value="0">
+        </td><td>
+          <input style="display:none" type="number" id="scriptModalOperationNumber2" min=0 value="0">
+        </td><td>
+          <button type="button" name="button" onclick="scriptModalAddOperation()">Add</button>
+        </td>
+      </tr>
+    </table>
+    <textarea name="name" rows="8" cols="70"></textarea>
+  </div>
+</div>
+
+<div class="content">
+<div id="resizer" class="card" style="display:none">
+  <span class="close" onclick="toggleElem('resizer')">&times;</span>
+  <table>
+    <tr>
+      <td>columns</td>
+      <td><input type="number" min=1 id="columns" value="4" onchange="resizeTable()"></td>
+    </tr>
+    <tr>
+      <td>rows</td>
+      <td><input type="number" min=1 id="rows" value="4" onchange="resizeTable()"></td>
+    </tr>
+  </table>
+</div>
+  <table id="table"></table>
+  <textarea style="display:none" id="testTextarea" rows="4" cols="50" placeholder="Write here to test"></textarea>
+</div>
+
+</body>
+<script type="text/javascript">
+
+//              LSB                          MSB
+const MOD_DIC=['shift','altgr','alt','ctrl','meta',]
+class Cell{
+  constructor(x,y){
+      this.x=x
+      this.y=y
+      this.keyCode=0
+      this.selectedValue=-1
+      this.custom=false
+      this.modifiers = 0
+  }
+  toString(){//returns the value for the file download
+    if(!this.custom){
+      if (this.selectedValue<0) return NaN
+      return intToHex((this.modifiers<<7)+keyValues_ESP[this.selectedValue].value)
+    }else {//custom
+      return intToHex((this.modifiers<<7)+Number(this.keyCode))
+    }
+  }
+  showText(){//return text to show on the table
+    if(this.custom){
+      return this.name
+    }else{
+      if (this.selectedValue>=0) {
+        return keyValues_ESP[this.selectedValue].name
+      }
+    }
+    return "none"
+  }
+  deconstruct(){
+    return !this.custom
+    ?this.selectedValue
+    :[this.keyCode,this.modifiers]
+  }
+  reconstruct(v){
+    if(typeof(v)=='number'){
+      this.selectedValue=v
+      this.setMod('shift',keyValues_ESP[v].shift?true:false)
+      this.setMod('altgr',keyValues_ESP[v].altgr?true:false)
+    }else{//is custom
+      this.custom=true
+      this.keyCode=v[0]
+      this.modifiers=v[1]
+    }
+  }
+  setMod(mod,v=true){
+    if(Array.isArray(mod))
+      mod.forEach(e=>this.setMod(e,v))
+    else
+      this.modifiers = updateBit(this.modifiers,MOD_DIC.indexOf(mod),v)
+  }
+  getMod(mod){
+    return getBit(this.modifiers,MOD_DIC.indexOf(mod))
+  }
+}
+let DOM = makeDOM(['modalKeyValues',"fileInput",'modal','table','columns','rows','resizer',
+  'modalValue','modalShift','modalAlt','modalAltGr','modalCtrl','modalMeta','modalKeyName',
+  'testTextarea','tabContainer','scriptModal','scriptModalID','scriptModalName','scriptAnounce',
+  'scriptModalSelectOperation','scriptModalOperationKey','scriptModalOperationText',
+  'scriptModalOperationNumber','scriptModalOperationNumber1','scriptModalOperationNumber2',
+  'scriptMOdalOperationMedia','scriptModalOperationSystem','scriptModalInfo1','scriptModalInfo2','scriptModalInfo3'
+])
+let col=0,row=0;
+let grid=[],scripts={}
+let gridx=0,gridy=0
+let openCell=undefined
+
+
+
+window.onload=()=>{
+  resizeTable()
+  fullfillKeySelector()
+  fullfillScriptSelectorOperation()
+}
+
+//capture key comands
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey) {
+    switch (e.key) {
+      case 's':
+          e.preventDefault();
+          download();
+        break;
+      case 'o':
+          e.preventDefault();
+          upload();
+        break;
+    }
+  }
+  if(e.key=='Escape'){
+    closeModal()
+  }
+  if(logger){console.log(e);}
+});
+
+function closeModal(){
+  if (DOM.modal.style.display=="block") {
+    DOM.table.getElementsByTagName("button")[openCell.x+openCell.y*DOM.table.rows.length].focus()
+    DOM.modal.style.display = "none";
+    openCell=undefined
+  }
+  if (DOM.scriptModal.style.display=="block") {
+    DOM.scriptModal.style.display = "none";
+  }
+}
+function openModal(x,y){
+  openCell=grid[y][x]
+  modalSetValues(openCell)
+  DOM.modal.style.display = "block";
+  DOM.modalKeyValues.focus()
+}
+function openScriptModal(){
+  DOM.scriptModal.style.display="block"
+}
+function tabChanged(n){
+  switch (n) {
+    case 0://Key
+      openCell.isScript=false
+      break;
+    case 1://Script
+      openCell.isScript=true
+      break;
+  }
+}
+function modalChanged(byselect=false){//set the values to the cell and calls for view update
+  openCell.isScript=false
+  if(byselect){//custom = false
+    openCell.custom=false
+    DOM.modalKeyName.disabled=true
+    let kv=keyValues_ESP[DOM.modalKeyValues.selectedIndex-1]
+    DOM.modalKeyName.value=kv.name
+    openCell.selectedValue=modalKeyValues.selectedIndex-1
+    openCell.setMod('shift',kv.shift?true:false)
+    openCell.setMod('altgr',kv.altgr?true:false)
+    openCell.setMod('alt'  ,kv.alt  ?true:false)
+    openCell.setMod('ctrl' ,kv.ctrl ?true:false)
+    openCell.setMod('meta' ,kv.meta ?true:false)
+  }else{
+    openCell.name=DOM.modalKeyName.value==''?'none':DOM.modalKeyName.value
+    openCell.custom=true
+    DOM.modalKeyName.disabled=false
+    openCell.keyCode=DOM.modalValue.value
+    openCell.setMod('shift',DOM.modalShift.checked)
+    openCell.setMod('altgr',DOM.modalAltGr.checked)
+    openCell.setMod('alt'  ,DOM.modalAlt.checked)
+    openCell.setMod('ctrl' ,DOM.modalCtrl.checked)
+    openCell.setMod('meta' ,DOM.modalMeta.checked)
+  }
+  modalSetValues(openCell)
+  resizeTable()
+
+}
+
+function modalSetValues(openCell){
+  if(openCell.isScript){
+    setTab(DOM.tabContainer,1)//Script
+  }else{//is a simple key
+    setTab(DOM.tabContainer,0)//keys
+    if(!openCell.custom){
+      let sv = openCell.selectedValue
+      let k = sv>=0?keyValues_ESP[sv]:null
+      DOM.modalKeyValues.item(sv+1).selected=true
+      DOM.modalValue.value=k?k.value:0
+      DOM.modalShift.checked=k?k.shift:false
+      DOM.modalAltGr.checked=k?k.altgr:false
+      DOM.modalAlt  .checked=k?k.alt  :false
+      DOM.modalCtrl .checked=k?k.ctrl :false
+      DOM.modalMeta .checked=k?k.meta :false
+    }else {
+      DOM.modalKeyValues.item(0).selected=true
+      DOM.modalValue.value=openCell.keyCode
+      DOM.modalShift.checked=openCell.getMod('shift')
+      DOM.modalAltGr.checked=openCell.getMod('altgr')
+      DOM.modalAlt  .checked=openCell.getMod('alt')
+      DOM.modalCtrl .checked=openCell.getMod('ctrl')
+      DOM.modalMeta .checked=openCell.getMod('meta')
+    }
+  }
+
+}
+
+
+
+function reconstruct(a){
+  DOM.columns.value=a.col
+  DOM.rows.value=a.row
+  //openTabable()//ensure grid space
+  a.cells.map((v,i)=>{
+    let x = i%col
+    let y = Math.floor(i/col)
+    grid[y][x].reconstruct(v)
+  })
+  resizeTable()//update values on table
+}
+function deconstruct(){
+  let cells=[]
+  for (var j = 0; j < row; j++) {
+    for (var i = 0; i < col; i++) {
+      cells.push(grid[j][i].deconstruct())
+    }
+  }
+  return{col,row,cells}
+}
+
+function resizeTable(){
+  col = Number(DOM.columns.value)
+  row = Number(DOM.rows.value)
+  enlargeGrid(col,row)
+  createTable(col,row)
+}
+
+function createTable(x,y){
+  DOM.table.innerHTML=""
+  for (var j = 0; j < y; j++) {
+    let row=DOM.table.insertRow(j)
+    for (var i = 0; i < x; i++) {
+      let cell=row.insertCell(i)
+      createCell(cell,i,j)
+    }
+  }
+}
+
+function enlargeGrid(x,y){
+  //pushRows
+  for (var i = gridy; i <y ; i++) {
+    grid.push([])
+  }
+  //refill rows
+  for (var i = 0; i < grid.length; i++) {
+    for (var j = grid[i].length; j <x ; j++) {
+      grid[i].push(new Cell(j,i))
+    }
+  }
+  gridy=y
+  gridx=x
+  return grid
+}
+
+
+
+function createCell(cell,x,y){
+  //create DOM cell for table
+  //cell.innerHTML=x+","+y
+  let but=document.createElement("BUTTON")
+  but.innerText=grid[y][x].showText()
+  but.setAttribute("onclick","openModal("+x+","+y+")")
+  cell.appendChild(but)
+}
+
+function gridToStr(){
+  let gridResult=[]
+  for(r of grid){
+    gridResult.push(r.join(';'))
+  }
+  return gridResult.join("\n")
+}
+
+function upload(){
+  DOM.fileInput.click()
+}
+
+function uploaded(){
+  var fr=new FileReader();
+  fr.onload=function(){
+    reconstruct(JSON.parse(fr.result.substring(fr.result.indexOf('\n',fr.result.indexOf('/*')))))
+  }
+  fr.readAsText(DOM.fileInput.files[0]);
+}
+
+
+function download(){
+  file("keyboard.txt",textToDownload())
+}
+
+function textToDownload(){
+  let text=""
+  text+=`${1}\n`//number of layouts
+  text+=gridToStr()
+  text+=`\n`
+  text+=`/* stop arduino reading, here goes information for the editor*/\n`//stop arduino reading
+  text+=JSON.stringify(deconstruct())
+  return text
+}
+
+function file(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+
+//['shift','altgr','alt','ctrl','meta',]
+let keyValues_ESP=[
+  {name:"CTRL",       value:0,ctrl:true},
+  {name:"SHIFT",      value:0,shift:true},
+  {name:"ALT",        value:0,alt:true},
+  {name:"META",       value:0,meta:true},
+  {name:"CTRL RIGHT", value:1},//16 4
+  {name:"SHIFT RIGHT",value:2},//32 5
+  {name:"ALTGR",      value:0,altgr:true},
+  {name:"META RIGHT", value:3},//128 7
+  {name:"a", value:4},
+  {name:"b", value:5},
+  {name:"c", value:6},
+  {name:"d", value:7},
+  {name:"e", value:8},
+  {name:"f", value:9},
+  {name:"g", value:10},
+  {name:"h", value:11},
+  {name:"i", value:12},
+  {name:"j", value:13},
+  {name:"k", value:14},
+  {name:"l", value:15},
+  {name:"m", value:16},
+  {name:"n", value:17},
+  {name:"o", value:18},
+  {name:"p", value:19},
+  {name:"q", value:20},
+  {name:"r", value:21},
+  {name:"s", value:22},
+  {name:"t", value:23},
+  {name:"u", value:24},
+  {name:"v", value:25},
+  {name:"w", value:26},
+  {name:"x", value:27},
+  {name:"y", value:28},
+  {name:"z", value:29},
+  {name:"1", value:30},
+  {name:"2", value:31},
+  {name:"3", value:32},
+  {name:"4", value:33},
+  {name:"5", value:34},
+  {name:"6", value:35},
+  {name:"7", value:36},
+  {name:"8", value:37},
+  {name:"9", value:38},
+  {name:"0", value:39},
+  {name:"!", value:30,shift:true},
+  {name:'"', value:31,shift:true},
+  {name:",", value:32,shift:true},
+  {name:"$", value:33,shift:true},
+  {name:"%", value:34,shift:true},
+  {name:"&", value:35,shift:true},
+  {name:"/", value:36,shift:true},
+  {name:"(", value:37,shift:true},
+  {name:")", value:38,shift:true},
+  {name:"=", value:39,shift:true},
+  {name:"|", value:30,altgr:true},
+  {name:"@", value:31,altgr:true},
+  {name:"#", value:32,altgr:true},
+  {name:"~", value:33,altgr:true},
+  {name:"€", value:8, altgr:true},
+  {name:"€", value:34,altgr:true},
+  {name:"¬", value:35,altgr:true},
+  {name:"[", value:47,altgr:true},
+  {name:"]", value:48,altgr:true},
+  {name:"{", value:49,altgr:true},
+  {name:"}", value:50,altgr:true},
+  {name:"{", value:52,altgr:true},
+  {name:"\\",value:53,altgr:true},// accually is \ but in js is needed to write as \\
+  {name:"ENTER", value:40},
+  {name:"ESCAPE", value:41},
+  {name:"BACKSPACE", value:42},
+  {name:"TAB", value:43},
+  {name:"SPACE", value:44},
+  {name:"CAPSLOCK", value:57},
+  {name:"'", value:45},
+  {name:"¡", value:46},
+  {name:"`", value:47},
+  {name:"+", value:48},
+  {name:"ç", value:49},
+  {name:"ç", value:50},
+  {name:"ñ", value:51},
+  {name:"´", value:52},
+  {name:"º", value:53},
+  {name:",", value:54},
+  {name:".", value:55},
+  {name:"-", value:56},
+  {name:"?", value:45,shift:true},
+  {name:"¿", value:46,shift:true},
+  {name:"^", value:47,shift:true},
+  {name:"*", value:48,shift:true},
+  {name:"Ç", value:49,shift:true},
+  {name:"Ç", value:50,shift:true},
+  {name:"Ñ", value:51,shift:true},
+  {name:"¨", value:52,shift:true},
+  {name:"ª", value:53,shift:true},
+  {name:";", value:54,shift:true},
+  {name:":", value:55,shift:true},
+  {name:"_", value:56,shift:true},
+  {name:"PRINTSCREEN", value:70},
+  {name:"SCROLL LOCK", value:71},
+  {name:"PAUSE", value:72},
+  {name:"INSERT", value:73},
+  {name:"HOME", value:74},
+  {name:"PAGE UP", value:75},
+  {name:"DELETE", value:76},
+  {name:"END", value:77},
+  {name:"PAGE DOWN", value:78},
+  {name:"ARROW RIGHT", value:79},
+  {name:"ARROW LEFT", value:80},
+  {name:"ARROW DOWN", value:81},
+  {name:"ARROW UP", value:82},
+  {name:"NUM LOCK", value:83},
+  {name:"/ numpad", value:84},
+  {name:"* numpad", value:85},
+  {name:"- numpad", value:86},
+  {name:"+ numpad", value:87},
+  {name:"ENTER_NUMPAD", value:88},
+  {name:"1 numpad", value:89},
+  {name:"2 numpad", value:90},
+  {name:"3 numpad", value:91},
+  {name:"4 numpad", value:92},
+  {name:"5 numpad", value:93},
+  {name:"6 numpad", value:94},
+  {name:"7 numpad", value:95},
+  {name:"8 numpad", value:96},
+  {name:"9 numpad", value:97},
+  {name:"0 numpad", value:98},
+  {name:"<", value:99},
+  {name:"CONTEXT_MENU", value:100},
+  {name:"POWER", value:101},
+  {name:"CLEAR", value:102},
+  {name:"F1", value:58},
+  {name:"F2", value:59},
+  {name:"F3", value:60},
+  {name:"F4", value:61},
+  {name:"F5", value:62},
+  {name:"F6", value:63},
+  {name:"F7", value:64},
+  {name:"F8", value:65},
+  {name:"F9", value:66},
+  {name:"F10", value:67},
+  {name:"F11", value:68},
+  {name:"F12", value:69},
+  {name:"F13", value:103},
+  {name:"F14", value:104},
+  {name:"F15", value:105},
+  {name:"F16", value:106},
+  {name:"F17", value:107},
+  {name:"F18", value:108},
+  {name:"F19", value:109},
+  {name:"F20", value:110},
+  {name:"F21", value:111},
+  {name:"F22", value:112},
+  {name:"F23", value:113},
+  {name:"F24", value:114},
+  {name:"A", value:4,shift:true},
+  {name:"B", value:5,shift:true},
+  {name:"C", value:6,shift:true},
+  {name:"D", value:7,shift:true},
+  {name:"E", value:8,shift:true},
+  {name:"F", value:9,shift:true},
+  {name:"G", value:10,shift:true},
+  {name:"H", value:11,shift:true},
+  {name:"I", value:12,shift:true},
+  {name:"J", value:13,shift:true},
+  {name:"K", value:14,shift:true},
+  {name:"L", value:15,shift:true},
+  {name:"M", value:16,shift:true},
+  {name:"N", value:17,shift:true},
+  {name:"O", value:18,shift:true},
+  {name:"P", value:19,shift:true},
+  {name:"Q", value:20,shift:true},
+  {name:"R", value:21,shift:true},
+  {name:"S", value:22,shift:true},
+  {name:"T", value:23,shift:true},
+  {name:"U", value:24,shift:true},
+  {name:"V", value:25,shift:true},
+  {name:"W", value:26,shift:true},
+  {name:"X", value:27,shift:true},
+  {name:"Y", value:28,shift:true},
+  {name:"Z", value:29,shift:true},
+
+]
+
+
+
+//only for console uuse
+function strAscii(str){
+  let result=[]
+  let arr=str.split(' ').map(x => Number(x))
+  for (const n of arr) {
+    result.push(String.fromCharCode(n))
+  }
+  return result.join('')
+}
+
+//bit operators
+function getBit(number, bitPosition) {
+  return (number & (1 << bitPosition)) === 0 ? 0 : 1;
+}
+function setBit(number, bitPosition) {
+  return number | (1 << bitPosition);
+}
+function clearBit(number, bitPosition) {
+  const mask = ~(1 << bitPosition);
+  return number & mask;
+}
+function updateBit(number, bitPosition, bitValue) {
+  const bitValueNormalized = bitValue ? 1 : 0;
+  const clearMask = ~(1 << bitPosition);
+  return (number & clearMask) | (bitValueNormalized << bitPosition);
+}
+
+
+//MATH
+function intToHex(n,x=16){
+  return Number(n).toString(x).toUpperCase()
+}
+
+// DOM functions
+function makeDOM(arr){
+  if(typeof(arr)=='string')arr=[arr]
+  let result ={}
+  for (var elem of arr) {
+    result[elem]=getElemByStr(elem)
+  }
+  return result;
+}
+function getElemByStr(elem){
+  let e = document.getElementById(elem)
+  if(e==null){
+    e = document.getElementsByClassName(elem)
+    if(e==null){
+      e = document.getElementsByTagName(elem)
+      if(e==null){
+        e = document.querySelector(elem)
+      }
+    }
+  }
+  return e
+}
+
+window.onclick = function(event) {
+  if (event.target == DOM.modal||event.target == DOM.scriptModal) {
+    closeModal()
+  }
+}
+
+function toggleElem(elem) {
+    if (typeof(elem)=='string') {
+      elem=getElemByStr(elem)
+    }
+    elem.style.display = (elem.style.display != 'none') ? 'none' : 'block';
+
+}
+
+function focusResizer(){
+  toggleElem(DOM.resizer)
+  DOM.resizer.getElementsByTagName('input')[0].select()
+}
+logger=false;
+function swapLogger(){
+  toggleElem(DOM.testTextarea)
+  DOM.testTextarea.select()
+  logger=!logger;
+}
+
+function openTab(evt, n) {
+  let obj = evt.path[2]
+  if (obj==DOM.tabContainer) {
+    tabChanged(n)
+  }
+  setTab(obj,n)
+}
+function setTab(tabContainer,n){
+  let tabs=tabContainer.getElementsByClassName("tabcontent")
+  let tablinks = tabContainer.getElementsByClassName("tablinks")
+  for (var i = 0; i < tabs.length; i++) {
+    if(n==i ){
+      tabs[i].style.display="block"
+      tablinks[i].classList.add("active");
+    }else {
+      tabs[i].style.display="none"
+      tablinks[i].classList.remove("active");
+    }
+  }
+}
+
+function fullfillKeySelector(){
+  let opt = document.createElement("option")
+  opt.setAttribute('selected', true);
+  opt.setAttribute('disabled', true);
+  opt.innerText="selecionar"
+  DOM.modalKeyValues.add(opt)
+  keyValues_ESP.map((x,i)=>{
+    let opt=document.createElement("OPTION")
+    opt.text=x.name;
+    opt.value=i;
+    DOM.modalKeyValues.add(opt)
+    DOM.scriptModalOperationKey.add(opt)
+  })
+}
+
+function scriptModalChangeScript(){
+  let scriptSelected = DOM.scriptModalID.value
+  let s
+
+  if(scriptSelected==0){
+      DOM.scriptAnounce.innerText = "The script #0 is reserved to be executed on the boot"
+      DOM.scriptAnounce.style.display="block"
+  }else if(scriptSelected<64){
+      DOM.scriptAnounce.innerText = "scripts bellow 64 should be reserved for scripts onPress if you plan to use them"
+      DOM.scriptAnounce.style.display="block"
+  }else if(scriptSelected<128){
+      DOM.scriptAnounce.innerText = "scripts bellow 128 should be reserved for scripts onRelease if you plan to use them"
+      DOM.scriptAnounce.style.display="block"
+  }else{
+    DOM.scriptAnounce.style.display="none"
+  }
+
+  if(Object.keys(scripts).includes(scriptSelected)){
+    s=scripts[scriptSelected]
+    DOM.scriptModalName.value=s.name
+  }else {
+
+  }
+}
+
+let scriptOperations=[{name:'KEY',inp:0,default:-1,info:"press & release"}//Key select
+                   ,{name:'PRESS',inp:0,default:-1,info:"remeber to release all presses"}//Key select
+                 ,{name:'RELEASE',inp:0,default:-1,info:""}//Key select
+                   ,{name:'WRITE',inp:1,default:"",info:"Text to write outomatically"}//text
+                   ,{name:'DELAY',inp:2,default:0,info:"delay in milliseconds"}//num
+                   ,{name:'MOUSE',inp:[2,5,6],default:[0,0,0],info:['mouseX','mouseY','scroll']}//num num num
+          ,{name:'ABSOLUTE MOUSE',inp:[2,5,6],default:[0,0,0],info:['mouseX','mouseY']}//num num ?num
+                  ,{name:'SYSTEM',inp:3,default:-1,info:""}//select
+                   ,{name:'MEDIA',inp:4,default:-1,info:""}//select
+]
+let scriptSystemValues=['POWER_DOWN','SLEEP','WAKE_UP']
+let scriptMediaValues=['POWER','SLEEP','RECORD','FAST_FORWARD','REWIND','NEXT','PREVIOUS','STOP','PLAY_PAUSE','PAUSE','MUTE','VOLUME_UP','VOLUME_DOWN','BRIGHTNESS_UP','BRIGHTNESS_DOWN','SCREENSAVER']
+function fullfillScriptSelectorOperation(){
+  scriptOperations.map((x,i)=>{
+    let opt=document.createElement("OPTION")
+    opt.text=x.name;
+    opt.value=i;
+    DOM.scriptModalSelectOperation.add(opt)
+  })
+  scriptSystemValues.map((x,i)=>{
+    let opt=document.createElement("OPTION")
+    opt.text=x;
+    opt.value=i;
+    DOM.scriptModalOperationSystem.add(opt)
+  })
+  scriptMediaValues.map((x,i)=>{
+    let opt=document.createElement("OPTION")
+    opt.text=x;
+    opt.value=i;
+    DOM.scriptMOdalOperationMedia.add(opt)
+  })
+}
+
+function scriptModalSelectedOperation(){
+  let inps=[DOM.scriptModalOperationKey,DOM.scriptModalOperationText,DOM.scriptModalOperationNumber,
+    DOM.scriptModalOperationSystem,DOM.scriptMOdalOperationMedia,DOM.scriptModalOperationNumber1,
+    DOM.scriptModalOperationNumber2]
+  let infos=[DOM.scriptModalInfo1,DOM.scriptModalInfo2,DOM.scriptModalInfo3]
+  let operation = DOM.scriptModalSelectOperation.value;
+  inps.map(e=>{e.style.display="none"})
+  infos.map((e,i)=>{e.style.display="none"})
+  if(Array.isArray(scriptOperations[operation].info)){
+    scriptOperations[operation].info.map((e,i)=>{infos[i].innerText=e;infos[i].style.display="table-cell"})
+  }else{
+    infos[0].innerText=scriptOperations[operation].info
+    infos[0].style.display="table-cell"
+  }
+
+  if(Array.isArray(scriptOperations[operation].inp)){
+    scriptOperations[operation].default.map((e,i)=>{
+      inps[i].value=e
+    })
+    for (var n of scriptOperations[operation].inp) {
+      inps[n].style.display='block'
+    }
+  }else{
+    inps[scriptOperations[operation].inp].value=scriptOperations[operation].default
+    inps[scriptOperations[operation].inp].style.display='block'
+  }
+}
+
+function scriptModalAddOperation(){
+  if(DOM.scriptModalSelectOperation.value<0)
+    return
+  let op = scriptOperations[DOM.scriptModalSelectOperation.value]
+  console.log(op);
+}
+  </script>
+</html>
