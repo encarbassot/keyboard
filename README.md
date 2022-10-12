@@ -16,3 +16,8 @@ Thanks to the chips
 
 ## TEENSY LC
 ![](img/teensyLC4x12keyb.drawio.png)
+
+
+
+
+All the documentation has been written by it's own keyboard
