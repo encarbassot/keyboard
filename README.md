@@ -1,5 +1,5 @@
 # Teclado Arduino
-![4x12 ortolineal dvorak](img/mdeia/20211022_161109.jpg)
+![4x12 ortolineal dvorak](img/media/keyb48_4.jpg)
 [more about this Keyboard](keyboards/keyboard48/)
 
 
