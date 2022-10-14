@@ -3,6 +3,10 @@
 
 #include "CONFIG.h"
 
+#ifndef SERIAL_OUTPUT
+  #include <Keyboard.h>
+#endif
+
 class Keyb{
   public:
     //keyb.cpp
@@ -26,6 +30,8 @@ class Keyb{
     #ifdef TEST2
     unsigned int test2counter = 10;
     #endif
+    unsigned char mainLayout =  L_NORMAL; //L_NORMAL --- L_QWERTY
+
 
     //SCRIPTS_adv.cpp
     void keyPress(unsigned char,unsigned char);
@@ -50,6 +56,10 @@ class Keyb{
     //void modifierClr();
     void modifierWrite(bool,unsigned char);
     unsigned char getMode(unsigned char,unsigned char,unsigned char layout =0);
+    unsigned char getTopMode(unsigned char mode);
+    unsigned char getLowMode(unsigned char mode);
+    unsigned char getHardModId(unsigned char mode);
+    bool isScript(unsigned char mode);
     unsigned int getVal(unsigned char*,unsigned char);
     unsigned char getVal(unsigned char,unsigned char,unsigned char,bool lookForCopy = true);
     bool isKey(unsigned char*,unsigned char,unsigned char);

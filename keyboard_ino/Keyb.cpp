@@ -2,22 +2,33 @@
 #include "CONFIG.h"
 #include "Arduino.h"
 #include "utils.h"
-#include "Key.h"
 
 
-#ifndef SERIAL_OUTPUT
-  #include <Keyboard.h>
-#endif
+
 
 void Keyb::setup(){
-  for(unsigned char i=0; i<PINS_DECO_LEN;i++){
-    pinMode(pins_deco[i],OUTPUT);
-  }
-  for(unsigned char i=0; i<PINS_MUX_LEN;i++){
-    pinMode(pins_mux[i],OUTPUT);
-  }
-  pinMode(PIN_MUX_INP,INPUT);
-
+  #ifdef BOARD_DECODER
+    for(unsigned char i=0; i<PINS_DECO_LEN;i++){
+      pinMode(pins_deco[i],OUTPUT);
+    }
+  #else//simple matrix
+    for(unsigned char i = 0; i<VIRTUAL_ROWS; i++){
+      pinMode(mat_inps[i],INPUT_PULLUP);
+    }
+  #endif
+  
+  #ifdef BOARD_MULTIPLEXER
+    for(unsigned char i=0; i<PINS_MUX_LEN;i++){
+      pinMode(pins_mux[i],OUTPUT);
+    }
+    pinMode(PIN_MUX_INP,INPUT);
+  #else//simple matrix
+    for(unsigned char i = 0;i<VIRTUAL_COLUMNS ;i++){
+      pinMode(mat_outs[i],OUTPUT);
+      digitalWrite(mat_outs[i],HIGH);
+    }
+  #endif
+  
   #ifdef SERIAL_OUTPUT
     Serial.begin(9600);
     delay(2000);
@@ -26,25 +37,29 @@ void Keyb::setup(){
     Keyboard.begin(); 
     delay(200);
     Keyboard.releaseAll();
+    delay(200);
   #endif
   
   #ifdef ADJACENCY_MATRIX
     translateMatrix();
   #endif
 
-
   #ifdef TEST3
     #ifndef SERIAL_OUTPUT
        #ERROR: TEST3 only works with Serial output
     #endif
     for(int j=0;j<VIRTUAL_ROWS;j++){
-      for(int i=0;i<VIRTUAL_COLUMNS;i++){
-        Serial.print(getVal(codes[0][j][i]));
-        Serial.print("\t");
-      }
+      for(int i=0;i<VIRTUAL_COLUMNS;i++){Serial.print(getVal(codes[0][j][i]));Serial.print("\t");}
       Serial.println();
     }
   #endif//TEST3
+
+  //#define TESTCODE
+  #ifdef TESTLOCAL_CODE_ONBOOT
+    for(int i=15;i>=0;i--){//0000000001001010//0000000010000101
+      if(bitRead(codes[0][0][0],i)){Keyboard.print("1");}else{Keyboard.print("0");}}
+  #endif
+  
 }
 
 void Keyb::loop(){
@@ -55,8 +70,7 @@ void Keyb::loop(){
 void Keyb::readMatrix(){
   bool aux;
   #ifdef TEST1
-  delay(10);
-  Serial.println();Serial.println();Serial.println(keyCount);
+    delay(10); Serial.println();Serial.println();Serial.println(keyCount);
     #ifndef SERIAL_OUTPUT
      #ERROR: TEST1 only works with Serial output
     #endif
@@ -67,17 +81,17 @@ void Keyb::readMatrix(){
   for(int j=0;j<VIRTUAL_ROWS;j++){
     
     #ifdef BOARD_DECODER
-    setDecoder(j);
-    #else
-    //digitalWrite(mat_outs[j],LOW);
+      setDecoder(j);
+    #else//simple matrix
+      digitalWrite(mat_outs[j],LOW);
     #endif
     
     for(int i=0;i<VIRTUAL_COLUMNS;i++){
       
       #ifdef BOARD_MULTIPLEXER
-      aux = setMultiplexer(i);
-      #else
-      //aux = !digitalRead(mat_inps[i]);
+        aux = setMultiplexer(i);
+      #else//simple matrix
+        aux = !digitalRead(mat_inps[i]);
       #endif
       keyCount += aux;
       
@@ -94,9 +108,7 @@ void Keyb::readMatrix(){
           #ifdef SERIAL_OUTPUT
           Serial.println(test2counter);
           #else
-          Keyboard.print(test2counter);
-          Keyboard.press(test2counter);Keyboard.release(test2counter);
-          Keyboard.press(CODE_ENTER);Keyboard.release(CODE_ENTER);
+          Keyboard.print(test2counter);Keyboard.press(test2counter);Keyboard.release(test2counter);Keyboard.press(CODE_ENTER);Keyboard.release(CODE_ENTER);
           #endif
           test2counter++;
           if(test2counter>255){
@@ -115,11 +127,11 @@ void Keyb::readMatrix(){
       //delay(1);
     }
     #ifdef TEST1
-    Serial.println();
+      Serial.println();
     #endif
 
     #ifndef BOARD_DECODER
-    //digitalWrite(mat_outs[j],HIGH);
+      digitalWrite(mat_outs[j],HIGH);
     #endif
   }
   delay(1);
@@ -172,9 +184,14 @@ void Keyb::doKey(bool pressing,unsigned int keyCode){
     }
   #else
     if(pressing){
-      Keyboard.press(keyCode);
+      //#define TESTLOCAL_CODE_ONPRESS
+      #ifdef TESTLOCAL_CODE_ONPRESS
+        for(int i=8;i>=0;i--){Keyboard.print(bitRead(keyCode,i)?"1":"0");}
+      #else
+        Keyboard.press(keyCode);
     }else{
-      Keyboard.release(keyCode);
+        Keyboard.release(keyCode);
+      #endif
     }
   #endif
 }
@@ -218,6 +235,12 @@ unsigned char Keyb::getMode(unsigned char j,unsigned char i,unsigned char layout
             :m;
 }
 
+unsigned char Keyb::getTopMode(unsigned char mode){  return getBit(mode,3,5);}
+unsigned char Keyb::getLowMode(unsigned char mode){  return getBit(mode,5);}
+bool Keyb::isScript(unsigned char mode){return getBit(mode,1,4) == 1;}
+unsigned char Keyb::getHardModId(unsigned char mode){return getBit(mode,4);}
+
+
 unsigned int Keyb::getVal(unsigned char k[],unsigned char layout){return getVal(k[0],k[1],layout);} //getVal(_shift,layout)
 unsigned char Keyb::getVal(unsigned char j,unsigned char i,unsigned char layout,bool lookForCopy = true){
   unsigned char m = uncompMode(codes[layout][j][i]);
@@ -228,7 +251,11 @@ unsigned char Keyb::getVal(unsigned char j,unsigned char i,unsigned char layout,
 
 bool Keyb::isKey(unsigned char k[], unsigned char j,unsigned char i){return k[0]==j&&k[1]==i;}
 bool Keyb::isModifier(unsigned char j, unsigned char i,unsigned char layout=0){
-  return getMode(j,i,layout) & 0b001000000;
+  //Serial.print(getTopMode(getMode(j,i,layout)));
+  //Serial.print(",");
+  //Serial.print(_MODIFIER);
+  //Serial.println("aa");
+  return getTopMode(getMode(j,i,layout)) == _MODIFIER;//is hard modifier
 }
 
 

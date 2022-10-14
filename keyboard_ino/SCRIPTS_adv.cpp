@@ -5,23 +5,24 @@
 
 unsigned char Keyb::getLayout(bool usePrev = false){
   bool *mStat = usePrev?prevModStat:modStat;
-  bool fn1 = mStat[0];
-  bool esc = mStat[1];
-  bool tab = mStat[2];
- 
-  if(fn1&&esc){return 4;}
-  if(fn1){return 2;}
-  if(esc){return 3;}
-  if(tab){return 1;}
+  bool space      = mStat[W_SPC];
+  bool del        = mStat[W_DEL];
+  bool enter      = mStat[W_ENT];  
+  bool backspace  = mStat[W_BKS];
+  if(space&&del){return L_F1F2;}
+  if(del)       {return L_NUMPAD;}
+  if(backspace) {return L_ARROWS;}
+  if(space)     {return L_SYMBOLS;}
+  if(enter)     {return L_PSEUDO_SHIFT;}
   
-  return 0;
+  return mainLayout;//L_NORMAL --- L_QWERTY
 }
 
 void Keyb::keyPress(unsigned char j,unsigned char i){
   //Serial.print(isModifier(j,i));
   if(isModifier(j,i)){
     makePrevModStat();
-    modStat[getBit(getMode(j,i),6,0)]=true;
+    modStat[getHardModId(getMode(j,i))]=true;
     //Serial.print(modStat[0]);Serial.print(modStat[1]);Serial.print(" - ");Serial.print(prevModStat[0]);Serial.println(prevModStat[1]);
     modifierIsKey = true;
     scanForKeys(true);
@@ -36,7 +37,7 @@ void Keyb::keyRelease(unsigned char j,unsigned char i){
   if(isModifier(j,i)){
     scanForKeys(false);
     makePrevModStat();
-    modStat[getBit(getMode(j,i),6,0)]=false;
+    modStat[getHardModId(getMode(j,i))]=false;
     //Serial.print(modStat[0]);Serial.print(modStat[1]);Serial.print(" - ");Serial.print(prevModStat[0]);Serial.println(prevModStat[1]);
     if(modifierIsKey){
       modifierIsKey = false;
@@ -48,29 +49,29 @@ void Keyb::keyRelease(unsigned char j,unsigned char i){
 }
 
 //return false when its not need to execute the keyPress()
-//this is called in doKey();
+//this is called before doKey();
 bool Keyb::modeManager(unsigned char j,unsigned char i, unsigned char layout,bool pressing){
-  unsigned char m = getMode(j,i,layout);
-  //bool isMod = isModifier(j,i);
+  unsigned char mode = getMode(j,i,layout);
+  unsigned char m = getTopMode(mode);
+  unsigned char _m = getLowMode(mode);
   
-  if(true){//!isMod
-    if(m & 0b100000){
-      doModifier(m & 0b11111);
+  if(m == _COPY || m == _MOD){
+    doModifier(_m);
+  }
+
+  if(m == 0 || m == _MODIFIER){
+    Serial.print("aaaa");
+    if(isScript(mode)){
+      if(!pressing){//only script on the pres, no at the release
+        Serial.print("ssss");
+        doScript(getVal(j,i,layout));
+        
+      }
+      return false;
     }else{
-      switch(m){
-        case 0://NONE normal key
-          doModifier();//release all
-          
-        break;
-        case SCRIPT:
-          if(!pressing){
-            doScript(getVal(j,i,layout));
-          }
-          return false;
-        break;
-      }//switch
+      doModifier();//release all
     }
-  }//if(!isMod
+  }
   
   return true;
 }
