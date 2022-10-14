@@ -1,5 +1,5 @@
 #include "Keyb.h"
-#include "CONFIG.h"
+//#include "CONFIG.h"
 
 Keyb k;
 
@@ -17,8 +17,11 @@ void loop(){
 /******TO*DO*******
 what if not defined BOARD_DECODER & BOARD_MULTIPLEXER
 
-if press a modifier & a key is pressed should release it
+read bloqMayus and blocqNum status to nevel let it be enabled
 
 key recorders class
-  
+
+after release Hmodifier wait few millis to release other keys, then act
+
+scanForKeys() if 2 modifiers pressed goes crazy
  */
