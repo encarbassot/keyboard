@@ -1,21 +1,23 @@
-# Teclado Arduino
-![4x12 ortolineal dvorak](img/media/keyb48_4.jpg)
-[more about this Keyboard](keyboards/keyboard48/)
+# Arduino Keyboard
+
+- [Keyboard customization](keyboards/README.md)
+- [How Keyboard hardware basic](playground/inputMatrix/README.md)
+- [How Keyboard hardware DECO-MUX](playground/deco-mux/README.md)
+- [Keyboard code examples](playground/README.md)
 
 
 
-## Functionality
-Thanks to the chips 
- - 3 to 8 LINE DECODER [74HC238](documentation/datasheet-DECO-M74HC238_STMicroelectronics.pdf)
- - 8 to 3 LINE MULTIPLEXOR [74LS151](documentation/datasheet-MUX-74LS151.pdf)
+# Keyboards I've build
 
- we can read up to 64 inputs with only 6+1 pins of the microcontroller
+## Keyboard 48
+more about [here](keyboard48/README.md)
+![Keyboard 48](img/media/keyb48_4.jpg)
 
-## Arduino pro micro
-![](img/proMicro4x12keyb.drawio.png)
+## Keyboard 64
+more about [here](keyboard64/README.md)
+![Keyboard 64](img/media/keyb64_3.jpeg)
 
-## TEENSY LC
-![](img/teensyLC4x12keyb.drawio.png)
+
 
 
 
