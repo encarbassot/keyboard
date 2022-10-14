@@ -4,7 +4,7 @@
 
 
 #define INT_SIZE 16
-#define MODE_SHIFT 12
+#define MODE_SHIFT 8
 #define MODE_SIZE INT_SIZE - MODE_SHIFT
 unsigned int c(unsigned char mode,unsigned char code){
   //code on the LSB and mode starting on the BYTE_LEN
@@ -19,8 +19,9 @@ example getBit(0b11011,3,1) ->   5
 10111 -> 1(101)1
 3 -> refers to length
 1 -> refeers to shift
-*/
 
+example getBit(0b10000000,1,7) -> 1
+*/
 // Function to extract k bits from p position
 unsigned int getBit(unsigned int number,unsigned char k,unsigned char p=0){
   //(1<<k) - 1 creates a mask with  k 1's ex: k = 3 -> 111
@@ -35,15 +36,6 @@ unsigned char uncompMode(unsigned int n){
 unsigned char uncompVal(unsigned int n){
   return getBit(n,MODE_SHIFT,0);
 }
-
-#ifdef ADJACENCY_MATRIX
-  void fisicToVirtual(unsigned char *j,unsigned char *i){
-    unsigned char _j=adjacencyMatrix[*j][*i][0];
-    *i=adjacencyMatrix[*j][*i][1];
-    *j = _j;
-  }
-#endif
-
 
 #if defined(BOARD_MULTIPLEXER) || defined(BOARD_DECODER)
   bool intToBinaryPos(int intNum,int pos){

@@ -3,75 +3,74 @@
 #include "Arduino.h"
 #include "utils.h"
 
-unsigned char Keyb::getLayout(){
-  bool fn1 = keyStat(_FN1);
-  //bool fn2 = keyStat(_FN2);
-
-  //if(fn1&&fn2){return 3};
-  if(fn1){return 1;}
-  //if(fn2){return 2;}
-
+unsigned char Keyb::getLayout(bool usePrev = false){
+  bool *mStat = usePrev?prevModStat:modStat;
+  bool fn1 = mStat[0];
+  bool esc = mStat[1];
+  bool tab = mStat[2];
+ 
+  if(fn1&&esc){return 4;}
+  if(fn1){return 2;}
+  if(esc){return 3;}
+  if(tab){return 1;}
+  
   return 0;
 }
 
-void Keyb::keyPress(unsigned char j,unsigned char i,unsigned char layout){
-  #ifdef ADJACENCY_MATRIX
-    fisicToVirtual(&j,&i);
-  #endif
-  
-  if(isModifier(j,i,layout)){
-    modifierIsKey = !modifierIsKey;
+void Keyb::keyPress(unsigned char j,unsigned char i){
+  //Serial.print(isModifier(j,i));
+  if(isModifier(j,i)){
+    makePrevModStat();
+    modStat[getBit(getMode(j,i),6,0)]=true;
+    //Serial.print(modStat[0]);Serial.print(modStat[1]);Serial.print(" - ");Serial.print(prevModStat[0]);Serial.println(prevModStat[1]);
+    modifierIsKey = true;
+    scanForKeys(true);
+
   }else{
     modifierIsKey = false;
-    /**********/
-    bool pressKey = modeManager(j,i,layout);
-    if(pressKey){
-      doKey(true,j,i,layout);
-    }
-    /**********/
+    doKey(true,j,i);
   }
-
 }
 
-void Keyb::keyRelease(unsigned char j,unsigned char i,unsigned char layout){
-  #ifdef ADJACENCY_MATRIX
-    fisicToVirtual(&j,&i);
-  #endif
-  
-  if(modifierIsKey && isModifier(j,i,layout)){
-    modifierIsKey = false;
-    if(modeManager(j,i,layout)){
-      doKey(j,i,layout);
+void Keyb::keyRelease(unsigned char j,unsigned char i){
+  if(isModifier(j,i)){
+    scanForKeys(false);
+    makePrevModStat();
+    modStat[getBit(getMode(j,i),6,0)]=false;
+    //Serial.print(modStat[0]);Serial.print(modStat[1]);Serial.print(" - ");Serial.print(prevModStat[0]);Serial.println(prevModStat[1]);
+    if(modifierIsKey){
+      modifierIsKey = false;
+      doKey(j,i);
     }
-  }
-  if(!modifierIsKey && !isModifier(j,i,layout)){
-    doKey(false,j,i,layout);
+  }else{
+    doKey(false,j,i);
   }
 }
 
 //return false when its not need to execute the keyPress()
-bool Keyb::modeManager(unsigned char j,unsigned char i, unsigned char layout){
-  unsigned char m = getBit(getMode(j,i,layout),3);
-  switch(m){
-
-    case 0:
-      doModifier();
-      //modifierClr();
-    break;
-    case 2:
-      doModifier(MOD_ALT);
-//      modifierWrite(false,MOD_SHIFT);
-      //modifierWrite(true,MOD_ALT);
-    break;
-    case 3:
-      doModifier(MOD_SHIFT);
-      //modifierWrite(false,MOD_ALT);
-      //modifierWrite(true,MOD_SHIFT);
-    break;
-    case SCRIPT://4
-      doScript(getVal(j,i,layout));
-    break;
-  }
+//this is called in doKey();
+bool Keyb::modeManager(unsigned char j,unsigned char i, unsigned char layout,bool pressing){
+  unsigned char m = getMode(j,i,layout);
+  //bool isMod = isModifier(j,i);
+  
+  if(true){//!isMod
+    if(m & 0b100000){
+      doModifier(m & 0b11111);
+    }else{
+      switch(m){
+        case 0://NONE normal key
+          doModifier();//release all
+          
+        break;
+        case SCRIPT:
+          if(!pressing){
+            doScript(getVal(j,i,layout));
+          }
+          return false;
+        break;
+      }//switch
+    }
+  }//if(!isMod
   
   return true;
 }
